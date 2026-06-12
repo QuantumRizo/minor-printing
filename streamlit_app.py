@@ -42,3 +42,8 @@ if uploaded_file is not None:
                     os.remove(tmp_in_path)
                 if os.path.exists(tmp_out_path):
                     os.remove(tmp_out_path)
+
+st.write("")
+col1, col2, col3 = st.columns([1, 2, 1])
+with col2:
+    st.image("goldengirls.jpeg", use_container_width=True)
