@@ -28,6 +28,7 @@ if uploaded_file is not None:
                     pdf_bytes = f.read()
                 
                 st.success("PDF generated successfully!")
+                st.image("ron.png")
                 st.download_button(
                     label="⬇️ Download PDF",
                     data=pdf_bytes,
