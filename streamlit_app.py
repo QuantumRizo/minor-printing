@@ -46,4 +46,4 @@ if uploaded_file is not None:
 st.write("")
 col1, col2, col3 = st.columns([1, 2, 1])
 with col2:
-    st.image("goldengirls.jpeg", use_container_width=True)
+    st.image("goldengirls.jpeg", width="stretch")
