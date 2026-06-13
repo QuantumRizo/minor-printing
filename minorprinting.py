@@ -4,10 +4,20 @@ from reportlab.lib.pagesizes import letter, landscape
 from reportlab.lib.units import inch
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
 
-def generate_daily_schedules(input_csv, output_pdf, report_title):
+def generate_daily_schedules(input_csv, output_pdf, report_title="Minors Schedule"):
     print("Reading data...")
     # 1. DATA TRANSFORMATION
     df = pd.read_csv(input_csv)
+
+    # Extract date for the report title
+    date_val = ""
+    if 'Date' in df.columns:
+        date_val = str(df['Date'].iloc[0])
+    elif 'Day' in df.columns:
+        date_val = str(df['Day'].iloc[0])
+        
+    if date_val:
+        report_title = f"Minors {date_val} A - Z"
 
     df = df.sort_values(by=['Last Name', 'First Name']).reset_index(drop=True)
     
@@ -15,7 +25,7 @@ def generate_daily_schedules(input_csv, output_pdf, report_title):
     df = df.rename(columns={'Person ID': ''})
     
     df['Preferred Name'] = df['Preferred Name'].fillna(df['First Name'])
-    df = df.drop(columns=['First Name', 'Day'])
+    df = df.drop(columns=['First Name', 'Day', 'Date'], errors='ignore')
     
     df = df.rename(columns={
         'Preferred Name': 'Name',
