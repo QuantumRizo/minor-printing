@@ -35,11 +35,18 @@ def generate_daily_schedules(input_csv, output_pdf, report_title="Minors Schedul
     })
     
     cols = ['', 'Last Name', 'Name', 'Bunk', 'Minor 1', 'Minor 2', 'Minor 3']
-    df = df[cols]
+    df = df[cols].copy()
+
+    # Fill missing values to prevent ReportLab from crashing on NaN (float) values
+    df = df.fillna('')
+    
+    # Convert all columns to string, ensuring float values like 1.0 become "1"
+    for col in cols:
+        df[col] = df[col].apply(lambda x: str(int(x)) if isinstance(x, float) and x.is_integer() else str(x))
 
     # Clean up extremely long strings to prevent them from overlapping column lines
     for col in ['Minor 1', 'Minor 2', 'Minor 3']:
-        df[col] = df[col].astype(str).apply(lambda x: x[:39] + '...' if len(x) > 42 else x)
+        df[col] = df[col].apply(lambda x: x[:39] + '...' if len(x) > 42 else x)
 
     print("Generating formatted PDF...")
     # 3. GENERATE PDF
