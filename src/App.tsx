@@ -4,8 +4,10 @@ import { parseCSV, type ParsedData } from './lib/csv-parser';
 import { generatePDF } from './lib/pdf-generator';
 import { parseVisitingCSV, type VisitingParsedData } from './lib/visiting-csv-parser';
 import { generateVisitingPDF } from './lib/visiting-pdf-generator';
+import { parseArrivalsCSV, type ArrivalsParsedData } from './lib/arrivals-csv-parser';
+import { generateLuggagePDF, generateFormsPDF } from './lib/arrivals-pdf-generator';
 
-type ModuleType = 'home' | 'minor-printing' | 'six-minors-printing';
+type ModuleType = 'home' | 'minor-printing' | 'six-minors-printing' | 'forms-luggage-printing';
 
 function App() {
   const [currentModule, setCurrentModule] = useState<ModuleType>('home');
@@ -14,6 +16,8 @@ function App() {
   const [isSuccess, setIsSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
+  const [formsPdfUrl, setFormsPdfUrl] = useState<string | null>(null);
+  const [sessionNumber, setSessionNumber] = useState<number>(4);
   const [isDragging, setIsDragging] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -56,6 +60,10 @@ function App() {
       URL.revokeObjectURL(pdfUrl);
       setPdfUrl(null);
     }
+    if (formsPdfUrl) {
+      URL.revokeObjectURL(formsPdfUrl);
+      setFormsPdfUrl(null);
+    }
   };
 
   const handleGenerate = async () => {
@@ -71,6 +79,13 @@ function App() {
         
         const url = URL.createObjectURL(pdfBlob);
         setPdfUrl(url);
+      } else if (currentModule === 'forms-luggage-printing') {
+        const parsedData: ArrivalsParsedData = await parseArrivalsCSV(file, sessionNumber);
+        const luggageBlob = generateLuggagePDF(parsedData);
+        const formsBlob = generateFormsPDF(parsedData);
+        
+        setPdfUrl(URL.createObjectURL(luggageBlob));
+        setFormsPdfUrl(URL.createObjectURL(formsBlob));
       } else {
         const parsedData: ParsedData = await parseCSV(file);
         const pdfBlob = generatePDF(parsedData);
@@ -153,7 +168,7 @@ function App() {
             }`}
           >
             <Printer size={20} />
-            Minor Printing
+            Daily Minor Printing
           </button>
           
           <button
@@ -165,7 +180,19 @@ function App() {
             }`}
           >
             <Printer size={20} />
-            6 Minors Printing
+            Visiting Day Minor Printing
+          </button>
+          
+          <button
+            onClick={() => handleModuleChange('forms-luggage-printing')}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all duration-200 cursor-pointer ${
+              currentModule === 'forms-luggage-printing' 
+                ? 'bg-blue-900/45 text-blue-300 font-semibold' 
+                : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100'
+            }`}
+          >
+            <FileText size={20} />
+            Arrivals & Forms
           </button>
 
           {/* Placeholders Section */}
@@ -206,7 +233,7 @@ function App() {
                     <div className="inline-flex items-center justify-center p-4 bg-blue-100 text-blue-600 rounded-2xl mb-6 shadow-sm group-hover:scale-110 transition-transform duration-300">
                       <Printer size={32} />
                     </div>
-                    <h2 className="text-2xl font-bold text-slate-800 mb-2">Minor Printing (3)</h2>
+                    <h2 className="text-2xl font-bold text-slate-800 mb-2">Daily Minor Printing (3)</h2>
                     <p className="text-slate-500 mb-6">Format and generate 3-minor schedules to pin outside daily.</p>
                   </div>
                   <span className="text-blue-600 font-semibold flex items-center gap-1 group-hover:gap-2 transition-all">
@@ -223,8 +250,25 @@ function App() {
                     <div className="inline-flex items-center justify-center p-4 bg-blue-100 text-blue-600 rounded-2xl mb-6 shadow-sm group-hover:scale-110 transition-transform duration-300">
                       <Printer size={32} />
                     </div>
-                    <h2 className="text-2xl font-bold text-slate-800 mb-2">6 Minors Printing</h2>
+                    <h2 className="text-2xl font-bold text-slate-800 mb-2">Visiting Day Minor Printing</h2>
                     <p className="text-slate-500 mb-6">Format and generate 6-minor schedules (legal size).</p>
+                  </div>
+                  <span className="text-blue-600 font-semibold flex items-center gap-1 group-hover:gap-2 transition-all">
+                    Open Module &rarr;
+                  </span>
+                </button>
+
+                {/* Forms & Luggage Printing Tool */}
+                <button
+                  onClick={() => setCurrentModule('forms-luggage-printing')}
+                  className="glass-panel text-left p-8 flex flex-col justify-between transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 hover:border-blue-300 hover:bg-blue-50/50 group border border-slate-100 cursor-pointer"
+                >
+                  <div>
+                    <div className="inline-flex items-center justify-center p-4 bg-blue-100 text-blue-600 rounded-2xl mb-6 shadow-sm group-hover:scale-110 transition-transform duration-300">
+                      <FileText size={32} />
+                    </div>
+                    <h2 className="text-2xl font-bold text-slate-800 mb-2">Arrivals & Forms</h2>
+                    <p className="text-slate-500 mb-6">Format and generate luggage and forms PDFs for sessions.</p>
                   </div>
                   <span className="text-blue-600 font-semibold flex items-center gap-1 group-hover:gap-2 transition-all">
                     Open Module &rarr;
@@ -239,24 +283,40 @@ function App() {
                 <span className="hover:text-slate-800 cursor-pointer" onClick={() => setCurrentModule('home')}>Dashboard</span>
                 <span>/</span>
                 <span className="text-slate-800 font-medium">
-                  {currentModule === 'minor-printing' ? 'Minor Printing' : '6 Minors Printing'}
+                  {currentModule === 'minor-printing' ? 'Daily Minor Printing' : currentModule === 'six-minors-printing' ? 'Visiting Day Minor Printing' : 'Arrivals & Forms'}
                 </span>
               </div>
 
               <div className="glass-panel w-full max-w-2xl p-8 mx-auto border border-slate-100 bg-white">
                 <header className="text-center mb-10">
                   <div className="inline-flex items-center justify-center p-3 bg-blue-100 text-blue-600 rounded-2xl mb-4 shadow-sm">
-                    <Printer size={32} />
+                    {currentModule === 'forms-luggage-printing' ? <FileText size={32} /> : <Printer size={32} />}
                   </div>
                   <h1 className="text-3xl font-extrabold text-slate-800 tracking-tight">
-                    {currentModule === 'minor-printing' ? 'Minor Printing (3)' : '6 Minors Printing'}
+                    {currentModule === 'minor-printing' ? 'Daily Minor Printing (3)' : currentModule === 'six-minors-printing' ? 'Visiting Day Minor Printing' : 'Arrivals & Forms'}
                   </h1>
                   <p className="text-slate-500 mt-2 text-lg">
-                    {currentModule === 'minor-printing' ? 'Format daily schedules to pin outside (Letter)' : 'Format daily schedules to pin outside (Legal)'}
+                    {currentModule === 'minor-printing' ? 'Format daily schedules to pin outside (Letter)' : currentModule === 'six-minors-printing' ? 'Format daily schedules to pin outside (Legal)' : 'Generate Luggage and Forms PDF from arrival times CSV'}
                   </p>
                 </header>
 
                 <section className="space-y-6">
+                  {currentModule === 'forms-luggage-printing' && (
+                    <div className="flex flex-col gap-2 mb-6 w-full max-w-xs mx-auto">
+                      <label className="text-sm font-semibold text-slate-700 text-center">Select Session</label>
+                      <select 
+                        value={sessionNumber}
+                        onChange={(e) => setSessionNumber(Number(e.target.value))}
+                        className="p-3 border border-slate-300 rounded-lg text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                      >
+                        <option value={1}>Session 1</option>
+                        <option value={2}>Session 2</option>
+                        <option value={3}>Session 3</option>
+                        <option value={4}>Session 4</option>
+                      </select>
+                    </div>
+                  )}
+
                   {/* CSV Drag and Drop */}
                   <div 
                     className={`border-2 border-dashed rounded-xl p-8 text-center transition-all duration-300 cursor-pointer ${
@@ -333,7 +393,7 @@ function App() {
                       
                       <a
                         href={pdfUrl}
-                        download={currentModule === 'six-minors-printing' ? "Visiting_Day_Minors.pdf" : "Master_Minors_Printed_Version.pdf"}
+                        download={currentModule === 'six-minors-printing' ? "Visiting_Day_Minors.pdf" : currentModule === 'forms-luggage-printing' ? `Luggage_Session_${sessionNumber}.pdf` : "Master_Minors_Printed_Version.pdf"}
                         className="flex items-center gap-6 pr-10 pl-6 py-5 bg-white border-2 border-slate-200 text-slate-700 rounded-full font-bold hover:border-blue-300 hover:bg-blue-50 transition-all shadow-sm hover:shadow-md hover:scale-105"
                       >
                         <img 
@@ -343,9 +403,22 @@ function App() {
                         />
                         <span className="flex items-center gap-3 text-2xl">
                           <Download size={28} />
-                          Download PDF
+                          {currentModule === 'forms-luggage-printing' ? 'Download Luggage PDF' : 'Download PDF'}
                         </span>
                       </a>
+
+                      {currentModule === 'forms-luggage-printing' && formsPdfUrl && (
+                        <a
+                          href={formsPdfUrl}
+                          download={`Forms_Session_${sessionNumber}.pdf`}
+                          className="mt-4 flex items-center gap-6 pr-10 pl-6 py-5 bg-white border-2 border-slate-200 text-slate-700 rounded-full font-bold hover:border-blue-300 hover:bg-blue-50 transition-all shadow-sm hover:shadow-md hover:scale-105"
+                        >
+                          <span className="flex items-center gap-3 text-2xl ml-[120px]">
+                            <Download size={28} />
+                            Download Forms PDF
+                          </span>
+                        </a>
+                      )}
                     </div>
                   )}
                 </section>

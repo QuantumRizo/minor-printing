@@ -88,12 +88,13 @@ export const generateVisitingPDF = (data: VisitingParsedData): Blob => {
       8: { cellWidth: 125 },
       9: { cellWidth: 125 },
     },
-    didDrawPage: function (dataArg) {
+    didDrawPage: function () {
       doc.setFontSize(8);
       const pageSize = doc.internal.pageSize;
       const pageWidth = pageSize.width ? pageSize.width : pageSize.getWidth();
       const pageHeight = pageSize.height ? pageSize.height : pageSize.getHeight();
-      const str = `Page ${doc.internal.getNumberOfPages()} of {totalPages}`;
+      const pages = typeof doc.getNumberOfPages === 'function' ? doc.getNumberOfPages() : (doc.internal as any).getNumberOfPages();
+      const str = `Page ${pages} of {totalPages}`;
       doc.text(str, pageWidth - margins.right, pageHeight - 10, { align: 'right' });
     }
   });
