@@ -1,0 +1,23 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #3b82f6;
+  --color-primary-foreground: #ffffff;
+  --color-background: #f8fafc;
+  --color-surface: #ffffff;
+}
+
+body {
+  @apply bg-[var(--color-background)] text-slate-900 antialiased selection:bg-blue-100 selection:text-blue-900 min-h-screen font-sans;
+}
+
+.glass-panel {
+  @apply bg-white/80 backdrop-blur-md border border-white/20 shadow-xl rounded-2xl;
+}
+
+/* Custom file input styles */
+input[type="file"]::file-selector-button {
+  @apply px-4 py-2 mr-4 rounded-full border-none bg-blue-50 text-blue-700 font-medium cursor-pointer transition-colors hover:bg-blue-100;
+}
+
+
