@@ -413,7 +413,12 @@ function App() {
                           download={`Forms_Session_${sessionNumber}.pdf`}
                           className="mt-4 flex items-center gap-6 pr-10 pl-6 py-5 bg-white border-2 border-slate-200 text-slate-700 rounded-full font-bold hover:border-blue-300 hover:bg-blue-50 transition-all shadow-sm hover:shadow-md hover:scale-105"
                         >
-                          <span className="flex items-center gap-3 text-2xl ml-[120px]">
+                          <img 
+                            src="/ron.png" 
+                            alt="Success mascot" 
+                            className="w-24 h-24 object-cover rounded-full shadow-sm border border-slate-100"
+                          />
+                          <span className="flex items-center gap-3 text-2xl">
                             <Download size={28} />
                             Download Forms PDF
                           </span>
