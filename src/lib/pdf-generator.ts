@@ -9,7 +9,7 @@ export const generatePDF = (data: ParsedData): Blob => {
     format: 'letter'
   });
 
-  const margins = { top: 25.2, right: 28.8, bottom: 25.2, left: 28.8 };
+  const margins = { top: 15, right: 15, bottom: 15, left: 15 };
   
   const headers = [
     [
@@ -20,22 +20,22 @@ export const generatePDF = (data: ParsedData): Blob => {
           halign: 'center',
           valign: 'middle',
           fontStyle: 'bold',
-          fontSize: 12,
+          fontSize: 9.6,
           fillColor: [255, 255, 255],
           textColor: [0, 0, 0],
-          minCellHeight: 18,
+          minCellHeight: 14,
           cellPadding: { top: 1, bottom: 1, left: 2, right: 2 }
         }
       }
     ],
     [
-      { content: '', styles: { minCellHeight: 11 } },
-      { content: 'Last Name', styles: { minCellHeight: 11 } },
-      { content: 'Name', styles: { minCellHeight: 11 } },
-      { content: 'Bunk', styles: { minCellHeight: 11 } },
-      { content: 'Minor 1', styles: { minCellHeight: 11 } },
-      { content: 'Minor 2', styles: { minCellHeight: 11 } },
-      { content: 'Minor 3', styles: { minCellHeight: 11 } }
+      { content: '', styles: { minCellHeight: 8 } },
+      { content: 'Last Name', styles: { minCellHeight: 8 } },
+      { content: 'Name', styles: { minCellHeight: 8 } },
+      { content: 'Bunk', styles: { minCellHeight: 8 } },
+      { content: 'Minor 1', styles: { minCellHeight: 8 } },
+      { content: 'Minor 2', styles: { minCellHeight: 8 } },
+      { content: 'Minor 3', styles: { minCellHeight: 8 } }
     ]
   ] as any; // Cast as any to bypass strict type checking for jspdf-autotable head objects
 
@@ -57,13 +57,13 @@ export const generatePDF = (data: ParsedData): Blob => {
     theme: 'grid',
     styles: {
       font: 'helvetica',
-      fontSize: 7,
+      fontSize: 5.6,
       textColor: [0, 0, 0],
       lineColor: [0, 0, 0],
       lineWidth: 0.5,
-      cellPadding: { top: 1, bottom: 1, left: 2, right: 2 },
+      cellPadding: { top: 0.5, bottom: 0.5, left: 1.5, right: 1.5 },
       valign: 'middle',
-      minCellHeight: 11,
+      minCellHeight: 8,
     },
     headStyles: {
       fillColor: [211, 211, 211],
@@ -72,12 +72,12 @@ export const generatePDF = (data: ParsedData): Blob => {
     },
     columnStyles: {
       0: { cellWidth: 25 },
-      1: { cellWidth: 80 },
-      2: { cellWidth: 65 },
+      1: { cellWidth: 85 },
+      2: { cellWidth: 70 },
       3: { cellWidth: 40 },
-      4: { cellWidth: 165 },
-      5: { cellWidth: 165 },
-      6: { cellWidth: 170 },
+      4: { cellWidth: 180 },
+      5: { cellWidth: 180 },
+      6: { cellWidth: 182 },
     }
   });
 
