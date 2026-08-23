@@ -4,7 +4,7 @@ export interface ArrivalRow {
   LastName: string;
   FirstName: string;
   Bunk: string;
-  ArrivalTime: string;
+  ArrivalTime?: string;
   Immunization: string;
   Healthcare: string;
   ParentMedical: string;
@@ -12,6 +12,7 @@ export interface ArrivalRow {
 
 export interface ArrivalsParsedData {
   session: number;
+  hasArrivalTime: boolean;
   rows: ArrivalRow[];
 }
 
@@ -30,14 +31,14 @@ export const parseArrivalsCSV = (file: File, session: number): Promise<ArrivalsP
         const firstRow = data[0];
         const keys = Object.keys(firstRow);
         
-        const timeCol = keys.find(k => k.includes('Trans-AssgnArrivTime'));
-        const bunkCol = keys.find(k => k.toLowerCase().includes('bunk'));
+        const timeCol = keys.find(k => k.includes('Trans-AssgnArrivTime') || k.toLowerCase().includes('arrival time') || k.toLowerCase().includes('arrivtime'));
+        const bunkCol = keys.find(k => k.toLowerCase().includes('bunk') || k.toLowerCase().includes('cabin'));
         const lastNameCol = keys.find(k => k.toLowerCase().includes('last name') || k.toLowerCase().includes('lastname'));
         const firstNameCol = keys.find(k => k.toLowerCase().includes('first name') || k.toLowerCase().includes('firstname'));
         
-        const immCol = keys.find(k => k.includes('Immunization Status'));
-        const healthCol = keys.find(k => k.includes('HealthCareProviderOTCs Status'));
-        const parentCol = keys.find(k => k.includes('ParentMedicalAuthorization Status'));
+        const immCol = keys.find(k => k.toLowerCase().includes('immunization'));
+        const healthCol = keys.find(k => k.toLowerCase().includes('healthcareproviderotcs') || k.toLowerCase().includes('healthcare') || k.toLowerCase().includes('health care'));
+        const parentCol = keys.find(k => k.toLowerCase().includes('parentmedicalauthorization') || k.toLowerCase().includes('parent medical') || k.toLowerCase().includes('parentmedical'));
 
         const cleanStatus = (val: string) => {
           if (!val) return "";
@@ -47,6 +48,8 @@ export const parseArrivalsCSV = (file: File, session: number): Promise<ArrivalsP
           }
           return val.trim();
         };
+
+        const hasArrivalTime = session !== 5 && Boolean(timeCol);
 
         let rows: ArrivalRow[] = data
           .filter(row => {
@@ -74,7 +77,7 @@ export const parseArrivalsCSV = (file: File, session: number): Promise<ArrivalsP
           return 0;
         });
 
-        resolve({ session, rows });
+        resolve({ session, hasArrivalTime, rows });
       },
       error: (err) => reject(err)
     });

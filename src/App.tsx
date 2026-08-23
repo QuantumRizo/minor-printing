@@ -17,7 +17,7 @@ function App() {
   const [error, setError] = useState<string | null>(null);
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const [formsPdfUrl, setFormsPdfUrl] = useState<string | null>(null);
-  const [sessionNumber, setSessionNumber] = useState<number>(4);
+  const [sessionNumber, setSessionNumber] = useState<number>(5);
   const [isDragging, setIsDragging] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -313,6 +313,7 @@ function App() {
                         <option value={2}>Session 2</option>
                         <option value={3}>Session 3</option>
                         <option value={4}>Session 4</option>
+                        <option value={5}>Session 5</option>
                       </select>
                     </div>
                   )}
